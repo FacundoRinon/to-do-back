@@ -1,47 +1,36 @@
 import { Injectable } from '@nestjs/common';
+import { PrismaService } from 'src/prisma/prisma.service'; // Ajusta la ruta según tu estructura de carpetas
 
 @Injectable()
 export class UsersService {
-  private readonly users = [
-    { id: 1, name: 'John Doe', email: 'john.doe@example.com' },
-    { id: 2, name: 'Jane Smith', email: 'jane.smith@example.com' },
-  ];
+  constructor(private prisma: PrismaService) {}
 
-  findAll(): any[] {
-    // Retorna todos los usuarios
-    return this.users;
+  async findAll() {
+    return this.prisma.user.findMany();
   }
 
-  findOne(id: number): any {
-    // Retorna un usuario por su ID
-    return this.users.find((user) => user.id === id);
+  async findOne(id: number) {
+    return this.prisma.user.findUnique({
+      where: { user_id: id },
+    });
   }
 
-  create(user: any): any {
-    // Crea un nuevo usuario
-    const newUser = { id: this.users.length + 1, ...user };
-    this.users.push(newUser);
-    return newUser;
+  async create(data: any) {
+    return this.prisma.user.create({
+      data,
+    });
   }
 
-  update(id: number, updateUserDto: any): any {
-    // Actualiza un usuario existente
-    const index = this.users.findIndex((user) => user.id === id);
-    if (index !== -1) {
-      this.users[index] = { ...this.users[index], ...updateUserDto };
-      return this.users[index];
-    }
-    return null;
+  async update(id: number, data: any) {
+    return this.prisma.user.update({
+      where: { user_id: id },
+      data,
+    });
   }
 
-  remove(id: number): any {
-    // Elimina un usuario por su ID
-    const index = this.users.findIndex((user) => user.id === id);
-    if (index !== -1) {
-      const deletedUser = this.users[index];
-      this.users.splice(index, 1);
-      return deletedUser;
-    }
-    return null;
+  async remove(id: number) {
+    return this.prisma.user.delete({
+      where: { user_id: id },
+    });
   }
 }
