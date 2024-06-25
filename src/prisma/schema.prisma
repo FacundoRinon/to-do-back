@@ -7,9 +7,11 @@ model User {
   username   String   @unique
   email      String   @unique
   password   String
+
+   @@map("users")
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("mysql://root:rootroot@localhost:3306/to-do")
+  provider = "mysql"
+  url      = env("DATABASE_URL")
 }
