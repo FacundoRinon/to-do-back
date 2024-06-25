@@ -11,10 +11,34 @@ export class UsersService {
     return this.prisma.user.findMany();
   }
 
-  async findOne(id: number) {
-    return this.prisma.user.findUnique({
-      where: { user_id: id },
+  async findOne(user: string, password: string): Promise<any> {
+    const foundUser = await this.prisma.user.findFirst({
+      where: {
+        OR: [{ username: user }, { email: user }],
+      },
     });
+
+    if (!foundUser) {
+      return 'Invalid credentials';
+    }
+    if (!(await bcrypt.compare(password, foundUser.password))) {
+      return 'Invalid credentials';
+    }
+    const token = jwt.sign(
+      {
+        user,
+      },
+      process.env.SESSION_SECRET,
+    );
+
+    const log = {
+      token,
+      id: foundUser.user_id,
+      username: foundUser.username,
+      email: foundUser.email,
+    };
+
+    return log;
   }
 
   async create(data: any) {

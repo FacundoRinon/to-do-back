@@ -15,9 +15,10 @@ export class UsersController {
     return this.usersService.create(userData);
   }
 
-  @Get(':id')
-  async findOne(@Param('id') id: string): Promise<any> {
-    const userId = parseInt(id, 10);
-    return this.usersService.findOne(userId);
+  @Post('/login')
+  async findOne(
+    @Body() userData: { user: string; password: string },
+  ): Promise<any> {
+    return this.usersService.findOne(userData.user, userData.password);
   }
 }
