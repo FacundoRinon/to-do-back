@@ -31,11 +31,28 @@ export class UsersService {
       process.env.SESSION_SECRET,
     );
 
+    const userListsIds = await this.prisma.userList.findMany({
+      where: {
+        user_id: foundUser.user_id,
+      },
+    });
+
+    const listIds = userListsIds.map((userList: any) => userList.list_id);
+
+    const lists = await this.prisma.list.findMany({
+      where: {
+        list_id: {
+          in: listIds,
+        },
+      },
+    });
+
     const log = {
       token,
       id: foundUser.user_id,
       username: foundUser.username,
       email: foundUser.email,
+      lists: lists,
     };
 
     return log;
@@ -82,6 +99,7 @@ export class UsersService {
       id: newUser.user_id,
       username,
       email,
+      lists: [],
     };
 
     return userCreate;

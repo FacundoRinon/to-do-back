@@ -14,4 +14,9 @@ export class ListsController {
   async create(@Body() listData: any): Promise<any> {
     return this.listsService.create(listData);
   }
+
+  @Get(':id')
+  async findListsByUserId(@Param('id') userId: string) {
+    return this.listsService.findListsByUserId(Number(userId));
+  }
 }

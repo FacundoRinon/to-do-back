@@ -43,4 +43,23 @@ export class ListsService {
 
     return newList;
   }
+
+  async findListsByUserId(userId: number) {
+    const userListsIds = await this.prisma.userList.findMany({
+      where: {
+        user_id: userId,
+      },
+    });
+
+    const listIds = userListsIds.map((userList: any) => userList.list_id);
+
+    const lists = await this.prisma.list.findMany({
+      where: {
+        list_id: {
+          in: listIds,
+        },
+      },
+    });
+    return lists;
+  }
 }
