@@ -1,47 +1,46 @@
 import { Injectable } from '@nestjs/common';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class ListsService {
-  private readonly lists = [
-    { id: 1, name: 'Lista de compras', elements: [] },
-    { id: 2, name: 'Lista de tareas', elements: [] },
-  ];
+  constructor(private prisma: PrismaService) {}
 
-  findAll(): any[] {
-    // Retorna todos los usuarios
-    return this.lists;
+  async findAll() {
+    return this.prisma.list.findMany();
   }
 
-  findOne(id: number): any {
-    // Retorna un usuario por su ID
-    return this.lists.find((user) => user.id === id);
-  }
+  async create(data: any) {
+    const { title, type, deadline, user_id } = data;
+    let newList;
 
-  create(user: any): any {
-    // Crea un nuevo usuario
-    const newUser = { id: this.lists.length + 1, ...user };
-    this.lists.push(newUser);
-    return newUser;
-  }
-
-  update(id: number, updateUserDto: any): any {
-    // Actualiza un usuario existente
-    const index = this.lists.findIndex((user) => user.id === id);
-    if (index !== -1) {
-      this.lists[index] = { ...this.lists[index], ...updateUserDto };
-      return this.lists[index];
+    try {
+      newList = await this.prisma.list.create({
+        data: {
+          title,
+          type,
+          deadline,
+        },
+      });
+    } catch (error) {
+      throw new Error(`Error creating list: ${error.message}`);
     }
-    return null;
-  }
 
-  remove(id: number): any {
-    // Elimina un usuario por su ID
-    const index = this.lists.findIndex((user) => user.id === id);
-    if (index !== -1) {
-      const deletedUser = this.lists[index];
-      this.lists.splice(index, 1);
-      return deletedUser;
+    try {
+      await this.prisma.userList.create({
+        data: {
+          user_id,
+          list_id: newList.list_id,
+        },
+      });
+    } catch (error) {
+      await this.prisma.list.delete({
+        where: {
+          list_id: newList.list_id,
+        },
+      });
+      throw new Error(`Error creating UserList entry: ${error.message}`);
     }
-    return null;
+
+    return newList;
   }
 }
