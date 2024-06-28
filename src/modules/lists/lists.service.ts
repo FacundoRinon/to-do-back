@@ -44,22 +44,39 @@ export class ListsService {
     return newList;
   }
 
-  async findListsByUserId(userId: number) {
-    const userListsIds = await this.prisma.userList.findMany({
+  async findListById(listId: number, userId: number) {
+    const list = await this.prisma.list.findUnique({
       where: {
+        list_id: listId,
+      },
+    });
+
+    const author = await this.prisma.userList.findFirst({
+      where: {
+        list_id: listId,
         user_id: userId,
       },
     });
+    if (author.user_id === userId) {
+      return list;
+    } else {
+      return 'invalid';
+    }
 
-    const listIds = userListsIds.map((userList: any) => userList.list_id);
+    // const userListsIds = await this.prisma.userList.findMany({
+    //   where: {
+    //     user_id: userId,
+    //   },
+    // });
 
-    const lists = await this.prisma.list.findMany({
-      where: {
-        list_id: {
-          in: listIds,
-        },
-      },
-    });
-    return lists;
+    // const listIds = userListsIds.map((userList: any) => userList.list_id);
+
+    // const lists = await this.prisma.list.findMany({
+    //   where: {
+    //     list_id: {
+    //       in: listIds,
+    //     },
+    //   },
+    // });
   }
 }

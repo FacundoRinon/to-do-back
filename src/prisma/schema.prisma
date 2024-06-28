@@ -22,12 +22,30 @@ model List {
   @@map("lists")
 }
 
+model Task {
+  task_id       Int     @id @default(autoincrement())
+  title         String
+  description   String
+  dateToComplete DateTime?
+  state         String    @default("pending")
+
+  @@map("tasks")
+}
+
 model UserList {
   id       Int      @id @default(autoincrement())
   user_id  Int
   list_id  Int
 
   @@map("userlist")
+}
+
+model UserTask {
+  id      Int     @id @default(autoincrement())
+  user_id Int
+  task_id Int
+
+  @@map("usertask")
 }
 
 datasource db {

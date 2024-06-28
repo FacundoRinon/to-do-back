@@ -1,5 +1,9 @@
-import { Controller, Get, Post, Body, Param } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Query } from '@nestjs/common';
 import { ListsService } from './lists.service';
+
+interface RequestBody {
+  user_id: number;
+}
 
 @Controller('/lists')
 export class ListsController {
@@ -16,7 +20,10 @@ export class ListsController {
   }
 
   @Get(':id')
-  async findListsByUserId(@Param('id') userId: string) {
-    return this.listsService.findListsByUserId(Number(userId));
+  async findListById(
+    @Param('id') listId: string,
+    @Query('user_id') userId: string,
+  ) {
+    return this.listsService.findListById(Number(listId), Number(userId));
   }
 }

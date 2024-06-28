@@ -87,9 +87,11 @@ export class UsersService {
       },
     });
 
+    const newUser_id = newUser.user_id;
+
     const token = jwt.sign(
       {
-        username,
+        newUser_id,
       },
       process.env.SESSION_SECRET,
     );
