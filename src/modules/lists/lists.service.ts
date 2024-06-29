@@ -51,6 +51,27 @@ export class ListsService {
       },
     });
 
+    const tasksInList = await this.prisma.listTask.findMany({
+      where: {
+        list_id: listId,
+      },
+    });
+
+    const taskIds = tasksInList.map((listTask: any) => listTask.task_id);
+
+    const tasks = await this.prisma.task.findMany({
+      where: {
+        task_id: {
+          in: taskIds,
+        },
+      },
+    });
+
+    const listWithTasks = {
+      ...list,
+      tasks: tasks,
+    };
+
     const author = await this.prisma.userList.findFirst({
       where: {
         list_id: listId,
@@ -58,25 +79,9 @@ export class ListsService {
       },
     });
     if (author.user_id === userId) {
-      return list;
+      return listWithTasks;
     } else {
       return 'invalid';
     }
-
-    // const userListsIds = await this.prisma.userList.findMany({
-    //   where: {
-    //     user_id: userId,
-    //   },
-    // });
-
-    // const listIds = userListsIds.map((userList: any) => userList.list_id);
-
-    // const lists = await this.prisma.list.findMany({
-    //   where: {
-    //     list_id: {
-    //       in: listIds,
-    //     },
-    //   },
-    // });
   }
 }

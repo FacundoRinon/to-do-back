@@ -10,7 +10,7 @@ export class TasksService {
   }
 
   async create(data: any) {
-    const { title, description, date, user_id } = data;
+    const { title, description, date, user_id, list_id } = data;
     let newTask;
 
     try {
@@ -39,6 +39,22 @@ export class TasksService {
         },
       });
       throw new Error(`Error creating UserTask entry: ${error.message}`);
+    }
+
+    try {
+      await this.prisma.listTask.create({
+        data: {
+          list_id,
+          task_id: newTask.task_id,
+        },
+      });
+    } catch (error) {
+      await this.prisma.task.delete({
+        where: {
+          task_id: newTask.task_id,
+        },
+      });
+      throw new Error(`Error creating ListTask entry: ${error.message}`);
     }
 
     return newTask;

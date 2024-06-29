@@ -48,6 +48,14 @@ model UserTask {
   @@map("usertask")
 }
 
+model ListTask {
+  id      Int     @id @default(autoincrement())
+  list_id Int
+  task_id Int
+
+  @@map("listtask")
+}
+
 datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")

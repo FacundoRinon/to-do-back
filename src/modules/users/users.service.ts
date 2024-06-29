@@ -37,12 +37,27 @@ export class UsersService {
       },
     });
 
+    const userTasksIds = await this.prisma.userTask.findMany({
+      where: {
+        user_id: foundUser.user_id,
+      },
+    });
+
     const listIds = userListsIds.map((userList: any) => userList.list_id);
+    const taskIds = userTasksIds.map((userTask: any) => userTask.task_id);
 
     const lists = await this.prisma.list.findMany({
       where: {
         list_id: {
           in: listIds,
+        },
+      },
+    });
+
+    const tasks = await this.prisma.task.findMany({
+      where: {
+        task_id: {
+          in: taskIds,
         },
       },
     });
@@ -53,6 +68,7 @@ export class UsersService {
       username: foundUser.username,
       email: foundUser.email,
       lists: lists,
+      tasks: tasks,
     };
 
     return log;
@@ -102,6 +118,7 @@ export class UsersService {
       username,
       email,
       lists: [],
+      tasks: [],
     };
 
     return userCreate;
