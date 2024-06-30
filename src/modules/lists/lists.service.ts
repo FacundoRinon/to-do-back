@@ -65,6 +65,9 @@ export class ListsService {
           in: taskIds,
         },
       },
+      orderBy: {
+        creation_date: 'desc',
+      },
     });
 
     const listWithTasks = {
@@ -83,5 +86,48 @@ export class ListsService {
     } else {
       return 'invalid';
     }
+  }
+
+  async deleteListById(id: number) {
+    const tasksInList = await this.prisma.listTask.findMany({
+      where: {
+        list_id: id,
+      },
+    });
+    const idsInList = tasksInList.map((listTask: any) => listTask.task_id);
+
+    await this.prisma.listTask.deleteMany({
+      where: {
+        list_id: id,
+      },
+    });
+
+    await this.prisma.userTask.deleteMany({
+      where: {
+        task_id: {
+          in: idsInList,
+        },
+      },
+    });
+
+    await this.prisma.task.deleteMany({
+      where: {
+        task_id: {
+          in: idsInList,
+        },
+      },
+    });
+
+    await this.prisma.userList.deleteMany({
+      where: {
+        list_id: id,
+      },
+    });
+
+    await this.prisma.list.delete({
+      where: {
+        list_id: id,
+      },
+    });
   }
 }

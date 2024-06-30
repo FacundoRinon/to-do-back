@@ -1,11 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcryptjs';
 import * as jwt from 'jsonwebtoken';
 
 @Injectable()
 export class UsersService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private jwtService: JwtService,
+    private configService: ConfigService,
+  ) {}
 
   async findAll() {
     return this.prisma.user.findMany();
@@ -24,12 +30,13 @@ export class UsersService {
     if (!(await bcrypt.compare(password, foundUser.password))) {
       return 'Invalid credentials';
     }
-    const token = jwt.sign(
-      {
-        user,
-      },
-      process.env.SESSION_SECRET,
-    );
+
+    const payload = {
+      username: foundUser.username,
+      sub: foundUser.user_id,
+    };
+
+    const token = this.jwtService.sign(payload);
 
     const userListsIds = await this.prisma.userList.findMany({
       where: {
@@ -52,6 +59,9 @@ export class UsersService {
           in: listIds,
         },
       },
+      orderBy: {
+        creation_date: 'desc',
+      },
     });
 
     const tasks = await this.prisma.task.findMany({
@@ -59,6 +69,9 @@ export class UsersService {
         task_id: {
           in: taskIds,
         },
+      },
+      orderBy: {
+        creation_date: 'desc',
       },
     });
 

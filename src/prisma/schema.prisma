@@ -28,6 +28,7 @@ model Task {
   description   String
   dateToComplete DateTime?
   state         String    @default("pending")
+  creation_date DateTime    @default(now())
 
   @@map("tasks")
 }
