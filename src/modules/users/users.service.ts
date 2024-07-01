@@ -82,6 +82,7 @@ export class UsersService {
       email: foundUser.email,
       lists: lists,
       tasks: tasks,
+      fastList: [],
     };
 
     return log;
@@ -118,12 +119,12 @@ export class UsersService {
 
     const newUser_id = newUser.user_id;
 
-    const token = jwt.sign(
-      {
-        newUser_id,
-      },
-      process.env.SESSION_SECRET,
-    );
+    const payload = {
+      username: newUser.username,
+      sub: newUser_id,
+    };
+
+    const token = this.jwtService.sign(payload);
 
     const userCreate = {
       token,
@@ -132,6 +133,7 @@ export class UsersService {
       email,
       lists: [],
       tasks: [],
+      fastList: [],
     };
 
     return userCreate;
